@@ -16,38 +16,39 @@ class GpsBloc extends Bloc<GpsEvent, GpsState> {
     on<GpsAndPermissionEvent>((event, emit) => emit(state.copyWith(
         isGpsEnabled: event.isGpsEnabled,
         isGpsPermissionGranted: event.isGpsPermissionGranted)));
+
     _init();
   }
+
+  Future<void> _init() async {
+    final gpsInitStatus = await Future.wait([
+      _checkGpsStatus(),
+      _isPermissionGranted(),
+    ]);
+
+    add(GpsAndPermissionEvent(
+      isGpsEnabled: gpsInitStatus[0],
+      isGpsPermissionGranted: gpsInitStatus[1],
+    ));
+  }
+
   Future<bool> _isPermissionGranted() async {
     final isGranted = await Permission.location.isGranted;
     return isGranted;
   }
 
-  Future<void> _init() async {
-    
-     
-
-
-    final gpsInitStatus =
-        await Future.wait([
-          _checkGpsStatus(), _isPermissionGranted()]);
-    
-
-    add(GpsAndPermissionEvent(
-        isGpsEnabled: gpsInitStatus[0],
-        isGpsPermissionGranted: gpsInitStatus[1] ));
-  }
-
   Future<bool> _checkGpsStatus() async {
     final isEnable = await Geolocator.isLocationServiceEnabled();
 
-    Geolocator.getServiceStatusStream().listen((event) {
-      final isEnable = (event.index == 1) ? true : false;
-      print('service status: $isEnable');
+    gpsServiceSubscription =
+        Geolocator.getServiceStatusStream().listen((event) {
+      final isEnabled = (event.index == 1) ? true : false;
       add(GpsAndPermissionEvent(
-          isGpsEnabled: isEnable,
-          isGpsPermissionGranted: state.isGpsPermissionGranted));
+        isGpsEnabled: isEnabled,
+        isGpsPermissionGranted: state.isGpsPermissionGranted,
+      ));
     });
+
     return isEnable;
   }
 
@@ -59,6 +60,7 @@ class GpsBloc extends Bloc<GpsEvent, GpsState> {
         add(GpsAndPermissionEvent(
             isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: true));
         break;
+
       case PermissionStatus.denied:
       case PermissionStatus.restricted:
       case PermissionStatus.limited:
@@ -67,7 +69,6 @@ class GpsBloc extends Bloc<GpsEvent, GpsState> {
         add(GpsAndPermissionEvent(
             isGpsEnabled: state.isGpsEnabled, isGpsPermissionGranted: false));
         openAppSettings();
-      // break;
     }
   }
 
