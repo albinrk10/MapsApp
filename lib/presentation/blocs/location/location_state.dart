@@ -8,7 +8,9 @@ class LocationState extends Equatable {
   //ultimo geolocation
   //historia
   const LocationState(
-      {this.followingUSer = false, this.lastKnownLocation, mylocationHistory})
+      {
+        this.followingUSer = false,
+         this.lastKnownLocation, mylocationHistory})
       : mylocationHistory = mylocationHistory ?? const [];
 
   LocationState copyWith({

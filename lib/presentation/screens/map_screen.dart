@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapas_app/presentation/blocs/blocs.dart';
 import 'package:mapas_app/presentation/views/views.dart';
 import 'package:mapas_app/presentation/widgets/wigets.dart';
@@ -31,31 +32,39 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<LocationBloc, LocationState>(
-      builder: (context, state) {
-        if (state.lastKnownLocation == null) return const Center(child: Text('Espere Porfavor..'));
+        body: BlocBuilder<LocationBloc, LocationState>(
+          builder: (context, locationState) {
+            if (locationState.lastKnownLocation == null)return const Center(child: Text('Espere Porfavor..'));
 
-        return SingleChildScrollView(
-          child: Stack(
-            children: [
-              MapView(
-                initialLocation: state.lastKnownLocation!,
-                
-              ),
-              //TODO: Add botones..
-            ],
-          ),
-        );
-      },
-    ),
-    floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    floatingActionButton: 
-     const Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        BtnCurrentLocation()
-      ],
-    )
-    );
+            return BlocBuilder<MapBloc, MapState>(
+              builder: (context, mapState) {
+                Map<String, Polyline> polylines = Map.from(mapState.polylines);
+                if (!mapState.showMyRoute) {
+                  polylines.removeWhere((key, value) => key == 'myRoute');
+                }
+                return SingleChildScrollView(
+                  child: Stack(
+                    children: [
+                      MapView(
+                        initialLocation: locationState.lastKnownLocation!,
+                        polylines: polylines.values.toSet(),
+                      ),
+                      //TODO: Add botones..
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: const Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            BtnToggleUserRoute(),
+            BtnFollowUser(),
+            BtnCurrentLocation(),
+          ],
+        ));
   }
 }
