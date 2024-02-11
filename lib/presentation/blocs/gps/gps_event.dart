@@ -1,6 +1,6 @@
 part of 'gps_bloc.dart';
 
-sealed class GpsEvent extends Equatable {
+abstract  class GpsEvent extends Equatable {
   const GpsEvent();
 
   @override
