@@ -50,6 +50,7 @@ class _MapScreenState extends State<MapScreen> {
                         polylines: polylines.values.toSet(),
                       ),
                       //TODO: Add botones..
+                      const SearchBars(),
                     ],
                   ),
                 );
@@ -64,6 +65,7 @@ class _MapScreenState extends State<MapScreen> {
             BtnToggleUserRoute(),
             BtnFollowUser(),
             BtnCurrentLocation(),
+            
           ],
         ));
   }
