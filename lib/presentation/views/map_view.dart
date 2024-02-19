@@ -30,10 +30,11 @@ class MapView extends StatelessWidget {
           zoomControlsEnabled: false,
           myLocationButtonEnabled: false,
           polylines: polylines,
-        
-          onMapCreated:(controller) => mapBloc.add(OnMapInitializedEvent(controller)) ,
-          //TODO: Add markers
-          //TODO:  Cuando se mueve el mapa
+          onMapCreated:(controller) => mapBloc.add(OnMapInitializedEvent(controller)) ,          
+          onCameraMove: (position) => mapBloc.mapCenter=position.target,
+
+          //TODO MARKERS
+          // onCameraMove
           
           ),
       ),

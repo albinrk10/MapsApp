@@ -51,6 +51,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       //TODO: Add botones..
                       const SearchBars(),
+                      const ManualMarker(),
                     ],
                   ),
                 );

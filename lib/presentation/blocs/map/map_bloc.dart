@@ -5,19 +5,19 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapas_app/config/config.dart';
+import 'package:mapas_app/domain/domain.dart';
 import 'package:mapas_app/presentation/blocs/blocs.dart';
 part 'map_event.dart';
 part 'map_state.dart';
 
 class MapBloc extends Bloc<MapEvent, MapState> {
-
   final LocationBloc locationBloc;
   GoogleMapController? _mapController;
+  LatLng? mapCenter;
 
-  StreamSubscription <LocationState>? locationStateSubscription;
+  StreamSubscription<LocationState>? locationStateSubscription;
 
   MapBloc({required this.locationBloc}) : super(const MapState()) {
-
     on<OnMapInitializedEvent>(_onInitMap);
     on<OnStartFollowingUserEvent>(_onStartFollowingUser);
     on<OnStopFollowingUserEvent>(
@@ -27,18 +27,21 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     on<OnToggleUserRoute>((event, emit) {
       emit(state.copyWith(showMyRoute: !state.showMyRoute));
     });
+    //DisplayPolylinesEvent
+    on<DisplayPolylinesEvent>((event, emit) {
+      emit(state.copyWith(polylines: event.polylines));
+    });
 
-   locationStateSubscription= locationBloc.stream.listen((locationState) {
-
-      if (locationState.lastKnownLocation != null ) {
+    locationStateSubscription = locationBloc.stream.listen((locationState) {
+      if (locationState.lastKnownLocation != null) {
         add(UpdateUserPolylinesEvent(locationState.mylocationHistory));
       }
-      
+
       if (!state.isfollowingUser) return;
       if (locationState.lastKnownLocation == null) return;
       moveCamera(locationState.lastKnownLocation!);
-      
     });
+
   }
 
   void _onInitMap(OnMapInitializedEvent event, Emitter<MapState> emit) {
@@ -55,25 +58,42 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     moveCamera(locationBloc.state.lastKnownLocation!);
   }
 
-  void _onPolylineNewPoint(UpdateUserPolylinesEvent event, Emitter<MapState> emit) {
+  void _onPolylineNewPoint(
+      UpdateUserPolylinesEvent event, Emitter<MapState> emit) {
     final myRoute = Polyline(
-      polylineId:  const PolylineId('myRoute'),
+      polylineId: const PolylineId('myRoute'),
       color: Colors.black,
       width: 5,
       startCap: Cap.roundCap,
       endCap: Cap.roundCap,
-      points : event.userLocations,
+      points: event.userLocations,
     );
-    final currentPolylines = Map<String ,Polyline >.from(state.polylines);
+    final currentPolylines = Map<String, Polyline>.from(state.polylines);
     currentPolylines['myRoute'] = myRoute;
 
     emit(state.copyWith(polylines: currentPolylines));
+  }
+
+  Future drawRoutePolyline(RouteDestination destination) async {
+    final myRouter = Polyline(
+      polylineId: const PolylineId('route'),
+      color: Colors.black,
+      points: destination.points,
+      startCap: Cap.roundCap,
+      endCap: Cap.roundCap,
+      width: 5,
+    );
+    final curretPolylines = Map<String, Polyline>.from(state.polylines);
+    curretPolylines['route'] = myRouter;
+
+    add(DisplayPolylinesEvent(curretPolylines));
   }
 
   void moveCamera(LatLng newLocation) {
     final cameraUpdate = CameraUpdate.newLatLng(newLocation);
     _mapController?.animateCamera(cameraUpdate);
   }
+
   @override
   Future<void> close() {
     locationStateSubscription?.cancel();

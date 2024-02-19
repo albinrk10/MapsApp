@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mapas_app/domain/domain.dart';
 
-class SearchDestinationDelegate extends SearchDelegate {
-  SearchDestinationDelegate() : super(searchFieldLabel: 'Buscar');
+class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
+  SearchDestinationDelegate() : super(searchFieldLabel: 'Buscar...');
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -17,7 +18,8 @@ class SearchDestinationDelegate extends SearchDelegate {
   Widget? buildLeading(BuildContext context) {
     return IconButton(
         onPressed: () {
-          close(context, null);
+          final result = SearchResult(cancel: true);
+          close(context, result);
         },
         icon: const Icon(Icons.arrow_back_ios));
   }
@@ -36,7 +38,9 @@ class SearchDestinationDelegate extends SearchDelegate {
           title: const Text('Colocar ubicacion manualmente',style: TextStyle(color: Colors.black),),
           onTap: () {
             //TODO regresar algo
-            close(context, null);
+            
+            final result = SearchResult(cancel: false, manual: true);
+            close(context, result);
           },
         )
       ],
