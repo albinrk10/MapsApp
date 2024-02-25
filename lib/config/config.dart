@@ -4,3 +4,4 @@ export 'theme/uber.dart';
 export 'helpers/traffic_service.dart';
 export 'helpers/traffic_interceptor.dart';
 export 'helpers/show_loading_message.dart';
+export 'helpers/places_intercerptor.dart';
