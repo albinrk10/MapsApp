@@ -5,6 +5,8 @@ import 'package:mapas_app/config/config.dart';
 import 'package:mapas_app/domain/domain.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 
+import '../../../infrastructure/infrastructure.dart';
+
 part 'search_event.dart';
 part 'search_state.dart';
 
@@ -21,6 +23,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
     on<OnDeactivateManualMarkerEvent>(
       (event, emit)=> emit(state.copyWith(displayManualMarker: false))
+    );
+    on<OnNewPlacesFoundEvent>(
+      (event, emit)=> emit(state.copyWith(places: event.places))
+    );
+    on<AddToHistoryEvent>(
+      (event, emit)=> emit(state.copyWith(history: [ event.place,...state.history]))
     );
   }
   Future<RouteDestination> getCoorsStartToEnd(LatLng start, LatLng end) async {
@@ -40,5 +48,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
        duration: duration.toString(), //prueba
         distance: distance.toString(), //prueba
         );
+  }
+
+  Future getPlacesByQuery(LatLng proximity, String query) async {
+    final newPlaces = await trafficService.getResultsByQuery(proximity, query);
+    
+    add(OnNewPlacesFoundEvent(newPlaces));
+
+  
   }
 }
