@@ -4,9 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapas_app/config/config.dart';
 import 'package:mapas_app/domain/domain.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
-
 import '../../../infrastructure/infrastructure.dart';
-
 part 'search_event.dart';
 part 'search_state.dart';
 
@@ -33,6 +31,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
   Future<RouteDestination> getCoorsStartToEnd(LatLng start, LatLng end) async {
     final trafficResponse = await trafficService.getCoordsStartAndEnd(start, end);
+
+    //Imformacion del destino 
+    final endPlace = await trafficService.getInformationByCoors(end);
    
    final geometry = trafficResponse.routes[0].geometry;
     final distance = trafficResponse.routes[0].distance;
@@ -47,6 +48,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       points: latLngList,
        duration: duration.toString(), //prueba
         distance: distance.toString(), //prueba
+        endPlace: endPlace
         );
   }
 

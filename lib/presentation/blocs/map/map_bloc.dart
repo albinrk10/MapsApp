@@ -29,7 +29,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     });
     //DisplayPolylinesEvent
     on<DisplayPolylinesEvent>((event, emit) {
-      emit(state.copyWith(polylines: event.polylines));
+      emit(state.copyWith(polylines: event.polylines, markers: event.markers));
     });
 
     locationStateSubscription = locationBloc.stream.listen((locationState) {
@@ -41,7 +41,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       if (locationState.lastKnownLocation == null) return;
       moveCamera(locationState.lastKnownLocation!);
     });
-
   }
 
   void _onInitMap(OnMapInitializedEvent event, Emitter<MapState> emit) {
@@ -78,15 +77,59 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     final myRouter = Polyline(
       polylineId: const PolylineId('route'),
       color: Colors.black,
+      width: 5,
       points: destination.points,
       startCap: Cap.roundCap,
       endCap: Cap.roundCap,
-      width: 5,
     );
+
+    double kms = double.parse(destination.distance) / 1000; //todo:tratar de observar
+    kms = (kms * 100).floorToDouble();
+    kms /= 100;
+
+    double tripDuration = (double.parse(destination.duration) / 60).floorToDouble();  
+
+    //Custom Markers
+    // final startMaker = await getAssetImageMarker();
+    // final endMaker = await getNetworkImageMarker(); 
+
+    final startMaker = await getStarCustomMarker(tripDuration.toInt(), 'Mi ubicacion');
+    final endMaker = await getEndCustomMarker(kms.toInt(), destination.endPlace.placeName);
+
+
+    final starMarker = Marker(
+      anchor: const Offset(0.1, 1),
+      markerId: const MarkerId('start'),
+      position: destination.points.first,
+      icon: startMaker,
+      // infoWindow:  InfoWindow(
+      //   title: 'Inicio',
+      //   snippet: 'Kms $kms, Duración: $tripDuration minutos'
+      // ),
+    );
+
+    final endMarker = Marker(
+      markerId: const MarkerId('end'),
+      position: destination.points.last,
+      icon: endMaker,
+      // anchor: const Offset(0, 0),
+      // infoWindow:  InfoWindow(
+      //   title: destination.endPlace.text,
+      //   snippet: destination.endPlace.placeName,
+      // ),
+    );
+
     final curretPolylines = Map<String, Polyline>.from(state.polylines);
     curretPolylines['route'] = myRouter;
 
-    add(DisplayPolylinesEvent(curretPolylines));
+    final currentMarkers = Map<String, Marker>.from(state.markers);
+    currentMarkers['start'] = starMarker;
+    currentMarkers['end'] = endMarker;
+
+    add(DisplayPolylinesEvent(curretPolylines, currentMarkers));
+
+    // await Future.delayed(const Duration(milliseconds: 300));
+    // _mapController?.showMarkerInfoWindow(const MarkerId('start'));
   }
 
   void moveCamera(LatLng newLocation) {

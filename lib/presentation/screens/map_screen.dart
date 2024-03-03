@@ -48,6 +48,7 @@ class _MapScreenState extends State<MapScreen> {
                       MapView(
                         initialLocation: locationState.lastKnownLocation!,
                         polylines: polylines.values.toSet(),
+                        markers: mapState.markers.values.toSet(),
                       ),
                       //TODO: Add botones..
                       const SearchBars(),
