@@ -18,5 +18,9 @@ final appRouter = GoRouter(
       path: '/map',
       builder: (context, state) =>  const MapScreen(),
     ),
+    GoRoute(
+      path: '/test_marker',
+      builder: (context, state) =>  const TestMarkerScreen(),
+    ),
   ],
 );
