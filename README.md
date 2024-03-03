@@ -11,4 +11,4 @@ A new Flutter project.
 ![Screenshot_1709500821](https://github.com/albinrk10/MapsApp/assets/79820950/3aed1f3e-96e9-4816-b2d1-83a76895b4c1)
 ![Screenshot_1709500850](https://github.com/albinrk10/MapsApp/assets/79820950/64456c76-125d-4a24-88b8-03d97aef63ab)
 ![Screenshot_1709500857](https://github.com/albinrk10/MapsApp/assets/79820950/466ee9cf-4848-4176-a470-3c35304bc31f)
-![Screenshot_1708317945](https://github.com/albinrk10/MapsApp/assets/79820950/f64dfd32-ab20-4f46-834d-ed3b989cdfb7)
+
